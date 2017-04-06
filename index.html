@@ -1,0 +1,132 @@
+<!doctype html>
+<html>
+<head>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="//www.googletagservices.com/tag/js/gpt.js"></script>
+    <script src="node_modules/harmonyjs/dist/harmony.min.js"></script>
+    <style>
+        .small {
+            position: absolute;
+            top: 60px;
+            left: 20px;
+        }
+        .big {
+            position: absolute;
+            top: 60px;
+            left: 400px;
+        }
+        .wide {
+            position: absolute;
+            top: 520px;
+            left: 0;
+        }
+        #bkg-small {
+            border: 1px solid;
+            height: 150px;
+            width: 150px;
+        }
+        #bkg-big {
+            border: 1px solid;
+            height: 400px;
+            width: 400px;
+        }
+        #bkg-wide {
+            border: 1px solid;
+            height: 100px;
+            width: 100%;
+            margin-bottom: 1000px;
+        }
+        .ad {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+        }
+        #txt-2 {
+            position: absolute;
+            top: 470px;
+        }
+    </style>
+</head>
+<body>
+    <h2 id="txt-1">Both of these are 300x250 creatives.</h2>
+
+    <div id="bkg-small" class="small bkg">
+        <div id="ad-small" class="ad"></div>
+    </div>
+
+    <div id="bkg-big" class="big bkg">
+        <div id="ad-big" class="ad"></div>
+    </div>
+
+    <h2 id="txt-2">Resize the window to watch this ad scale.</h2>
+    
+    <div id="bkg-wide" class="wide bkg">
+        <div id="ad-wide" class="ad"></div>
+    </div>
+
+    <script>
+        googletag.pubads().enableSingleRequest();
+        googletag.pubads().setCentering(true);
+
+        harmony.defineSlot({
+            name: 'big',
+            id: 'ad-big',
+            group: 'ads',
+            sizes: [300, 250],
+            adunit: '11347122/dev-test',
+            preserveId: true,
+            targeting: {
+                ad_slot: 'Grew to Fit'
+            }
+        });
+        harmony.defineSlot({
+            name: 'small',
+            id: 'ad-small',
+            group: 'ads',
+            sizes: [300, 250],
+            adunit: '11347122/dev-test',
+            preserveId: true,
+            targeting: {
+                ad_slot: 'Shrank to Fit'
+            }
+        });
+        harmony.defineSlot({
+            name: 'wide',
+            id: 'ad-wide',
+            group: 'ads',
+            sizes: [728, 90],
+            adunit: '11347122/dev-test',
+            preserveId: true,
+            targeting: {
+                ad_slot: 'Resize the Window'
+            }
+        });
+        harmony.show.group('ads');
+
+        harmony.on('slotRenderEnded', function (event) {
+            var slot = $('#' + harmony.slot(event.slot.name).id),
+                parent = slot.parent(),
+                scaleX = parent.width() / slot.width(),
+                scaleY = parent.height() / slot.height(),
+                scale = Math.min(scaleX, scaleY);
+
+            slot.css('transform', 'translate(-50%, -50%) scale(' + scale + ')');
+        });
+
+        var working = false;
+        $(window).on('resize', function () {
+            if (!working) {
+                working = true;
+                window.requestAnimationFrame(function () {
+                    var slot = $('#ad-wide'),
+                        parent = slot.parent(),
+                        scaleX = parent.width() / slot.width(),
+                        scaleY = parent.height() / slot.height(),
+                        scale = Math.min(scaleX, scaleY);
+                    slot.css('transform', 'translate(-50%, -50%) scale(' + scale + ')');
+                    working = false;
+                });
+            }
+        });
+    </script>
+</html>
